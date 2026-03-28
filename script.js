@@ -1,13 +1,13 @@
 const output = document.getElementById("output");
 const historicoEl = document.getElementById("historico");
 
-// Recupera histórico do LocalStorage
+// Recupera histórico
 let historico = JSON.parse(localStorage.getItem("historicoCodigos")) || [];
 
-// Função para atualizar a lista na tela
+// Atualiza lista
 function atualizarHistorico() {
     historicoEl.innerHTML = "";
-    historico.slice().reverse().forEach((item, index) => {
+    historico.slice().reverse().forEach((item) => {
         const li = document.createElement("li");
         li.innerHTML = `
             <span>${item.codigo} <br><small>${item.data}</small></span>
@@ -17,38 +17,36 @@ function atualizarHistorico() {
     });
 }
 
-// Função para copiar código
+// Copiar código
 function copiarCodigo(codigo) {
     navigator.clipboard.writeText(codigo)
-        .then(() => alert("Código copiado!"))
-        .catch(err => alert("Erro ao copiar: " + err));
+        .then(() => alert("Código copiado!"));
 }
 
-// Atualiza a lista ao carregar
+// Atualiza ao carregar
 atualizarHistorico();
 
-// Função chamada quando um código é escaneado
-function onScanSuccess(decodedText, decodedResult) {
+// Quando escanear
+function onScanSuccess(decodedText) {
     output.textContent = `Código lido: ${decodedText}`;
-    console.log(decodedText);
 
-    // Adiciona ao histórico e salva
-    historico.push({codigo: decodedText, data: new Date().toLocaleString()});
+    historico.push({
+        codigo: decodedText,
+        data: new Date().toLocaleString()
+    });
+
     localStorage.setItem("historicoCodigos", JSON.stringify(historico));
-
     atualizarHistorico();
 }
 
-// Configuração do scanner
-var html5QrcodeScanner = new Html5Qrcode("reader");
-
-html5QrcodeScanner.start(
-    { facingMode: "environment" }, // Câmera traseira
+// 👇 AQUI ESTÁ A CORREÇÃO PRINCIPAL
+const scanner = new Html5QrcodeScanner(
+    "reader",
     {
-        fps: 10,    // frames por segundo
-        qrbox: 250  // tamanho da caixa de leitura
+        fps: 10,
+        qrbox: 250
     },
-    onScanSuccess
-).catch(err => {
-    output.textContent = "Erro ao acessar a câmera: " + err;
-});
+    false
+);
+
+scanner.render(onScanSuccess);
