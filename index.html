@@ -3,28 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Leitor de Códigos PWA</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+  <title>Leitor de Código</title>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    body {
+      background: #0f172a;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #reader {
+      margin: 20px auto;
+      width: 300px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #1e293b;
+      margin: 5px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📷 Escaneie o Código</h1>
-    <div id="reader"></div>
-    <div id="output">Aguardando código...</div>
 
-    <h2>📋 Histórico de códigos</h2>
-    <ul id="historico"></ul>
-  </div>
+<h1>📷 Escaneie o Código</h1>
 
-  <script src="script.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-      .then(() => console.log('Service Worker registrado com sucesso!'))
-      .catch(err => console.log('Erro ao registrar Service Worker:', err));
-    }
-  </script>
+<div id="reader"></div>
+
+<p id="output">Aguardando código...</p>
+
+<h3>📋 Histórico</h3>
+<ul id="historico"></ul>
+
+<script>
+const output = document.getElementById("output");
+const historicoEl = document.getElementById("historico");
+
+let historico = JSON.parse(localStorage.getItem("historicoCodigos")) || [];
+
+function atualizarHistorico() {
+  historicoEl.innerHTML = "";
+  historico.slice().reverse().forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item.codigo + " - " + item.data;
+    historicoEl.appendChild(li);
+  });
+}
+
+function onScanSuccess(decodedText) {
+  output.innerText = decodedText;
+
+  historico.push({
+    codigo: decodedText,
+    data: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("historicoCodigos", JSON.stringify(historico));
+  atualizarHistorico();
+}
+
+atualizarHistorico();
+
+const scanner = new Html5QrcodeScanner("reader", {
+  fps: 10,
+  qrbox: 250
+});
+
+scanner.render(onScanSuccess);
+</script>
+
 </body>
 </html>
