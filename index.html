@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leitor de Códigos PWA</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>📷 Escaneie o Código</h1>
+    <div id="reader"></div>
+    <div id="output">Aguardando código...</div>
+
+    <h2>📋 Histórico de códigos</h2>
+    <ul id="historico"></ul>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('Service Worker registrado com sucesso!'))
+      .catch(err => console.log('Erro ao registrar Service Worker:', err));
+    }
+  </script>
+</body>
+</html>
